@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = 'soin)1c6l&9vs!ep(*s2=qrq*4pc()392ij$su5ok-gjp1vt20$h'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'import_export',
     'corsheaders',
-    'django_heroku',
     'whitenoise.runserver_nostatic',
     
 ]
