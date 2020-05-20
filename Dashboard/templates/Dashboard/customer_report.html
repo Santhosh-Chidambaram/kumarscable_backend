@@ -1,0 +1,72 @@
+{% extends "Dashboard/base.html" %}{% load static %}{% block sb_admin_title %}Tables{% endblock sb_admin_title %}{% block sb_admin_subheading %}{% endblock sb_admin_subheading %}
+
+
+
+ {% block sb_admin_breadcrumb_active %}
+ <li class="breadcrumb-item active">Customer Payment Reports</li>
+ {% endblock sb_admin_breadcrumb_active %}
+ {% block sb_admin_content %}  
+ <div class="row"  style="justify-content: center;align-items: center;padding-top: 20px;">
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card text-white o-hidden h-100 " style="background-color: rgba(201, 67, 140, 0.897);">
+          <div class="card-body">
+            <div class="card-body-icon">
+              <i class="fas fa-fw fa-money-bill-alt"></i>
+            </div>
+            <div class="mr-5" style="font-weight: bolder;">TOTAL PAYMENT REPORTS: {{cprcount}}</div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+  <!-- DataTables Example -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+           Customer Payment Reports</div>
+          <div class="card-body">
+            <!-- <div style="display:flex;justify-content: space-evenly;">
+              <h3 style="color: #0072ff;">ACTIVE : {{activecount}}</h3>
+              <h3 style="color: #fd1d1d;">DEACTIVE : {{unactivecount}}</h3>
+          </div> -->
+            <div class="table-responsive">
+              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead style="background-color: #43cea2;color: #fafafa;">
+                  <tr>
+                    <th>CUSTOMER NAME</th>
+                    <th>STREET</th>
+                    <th>PAYMENT AMOUNT</th>
+                    <th>PAYMENT DATE</th>
+                    <th>PAYMENT MONTH</th>
+                    <!-- <th>Additional Price</th>
+                    <th>Total Price</th>
+                    <th>Box Status</th> -->
+                  </tr>
+                </thead>
+                
+                <tbody>
+                    {% for c in cpr %}
+                    <tr>
+                        <td>{{c.customer_name}}</td>
+                        <td>{{c.customer.street}}</td>
+                        <td>{{c.customer.payment_amount}}</td>
+                        <td>{{c.customer.payment_date}}</td>
+                        <td>{{c.payment_month}}</td>
+                        
+                      </tr>
+
+                    {% endfor %}
+                  
+               
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+        </div>
+
+
+{% endblock sb_admin_content %}
+
+

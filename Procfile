@@ -1,0 +1,1 @@
+web: gunicorn kumarscable_backend.wsgi

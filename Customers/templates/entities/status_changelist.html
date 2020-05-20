@@ -1,0 +1,39 @@
+{% extends 'admin/change_list.html' %} 
+
+<!-- {% block object-tools-items %}
+    
+    {% include "admin/import_export/change_list_import_item.html" %}
+    {% include "admin/import_export/change_list_export_item.html" %}
+    {{ block.super }}
+{% endblock %}
+ -->
+
+{% block object-tools %}
+<div>
+  <form  method="POST">
+    {% csrf_token %}
+    <a
+      type="submit"
+      style="
+        background-color: rgb(250, 48, 48);
+        color: white;
+        height: 40px;
+        border-style: none;
+        border-radius: 20px;
+        width: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+      "
+      onmouseover="this.style.backgroundColor='blue'"
+      onmouseout="this.style.backgroundColor='rgb(250, 48, 48)'"
+      href="setallunpaid/"
+    >
+      Set All Unpaid
+    </a>
+  </form>
+</div>
+<br />
+{{ block.super }} 
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "Dashboard/base.html" %}{% load static %}{% block sb_admin_title %}Tables{% endblock sb_admin_title %}{% block sb_admin_subheading %}{% endblock sb_admin_subheading %}
+
+
+
+ {% block sb_admin_breadcrumb_active %}
+ <li class="breadcrumb-item active">Collections</li>
+ {% endblock sb_admin_breadcrumb_active %}
+ {% block sb_admin_content %}  
+  <!-- DataTables Example -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+           SetupBoxes</div>
+          <div class="card-body">
+            
+            <div class="table-responsive">
+              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead style="background-color: #43cea2;color: #fafafa;">
+                  <tr>
+                    <th>COLLECTOR NAME</th>
+                    <th>COLLECTION DATE</th>
+                    <th>COLLECTION AMOUNT</th>
+                    <th>COLLECTION LIST</th>
+                  
+                  </tr>
+                </thead>
+                <tfoot>
+                  <tr>
+                    
+                  </tr>
+                </tfoot>
+                <tbody>
+                    {% for c in collection %}
+                    <tr>
+                        <td>{{c.collector.username}}</td>
+                        <td>{{c.date}}</td>
+                        <td>{{c.collection_amount}}</td>
+                        <td>
+                          {% for cl in c.collection_list.all %}
+                              {{ cl.name }},
+                          {% endfor %}
+                        </td>
+                        
+                      </tr>
+
+                    {% endfor %}
+                  
+               
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+        </div>
+
+
+{% endblock sb_admin_content %}
+
+
