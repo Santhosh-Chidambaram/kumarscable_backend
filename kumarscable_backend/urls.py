@@ -9,6 +9,7 @@ urlpatterns = [
     path('',include('Collections.urls')),
     path('',include('Setupboxes.urls')),
     path('',include('Dashboard.urls')),
+    path('',include('Customers.urls')),
 ]
 
 if settings.DEBUG:
