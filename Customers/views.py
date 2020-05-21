@@ -42,12 +42,9 @@ def CustomerPaymentUpdate(request, pk):
 class GetCustomer(APIView):
     permission_classes = (IsAuthenticated,)
     def  get(self,request,boxno):
-        try:
-            q_box = Customer.objects.filter(setupbox__boxno=boxno)
-        except Customer.objectDoesNotExist:
-            return Response({"Customer not found"},status=status.HTTP_404_NOT_FOUND)
-        
-        return Response({
+        q_box = Customer.objects.filter(setupbox__boxno=boxno)
+        if q_box:
+            return Response({
                     "id":s.id,
                     "name":s.name,
                     "street":s.street,
@@ -78,6 +75,10 @@ class GetCustomer(APIView):
                     "payment_amount":s.payment_amount
 
                     } for s in q_box)
+        else:
+            return Response({"Customer not found"},status=status.HTTP_404_NOT_FOUND)
+
+            
 
 
 @permission_classes([IsAuthenticated,])
