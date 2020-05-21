@@ -96,7 +96,7 @@ class CollectionReports(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        return Response({"Customers list empty"},status=status.HTTP_400_BAD_REQUEST)
     
     def get(self,request):
         date = datetime.datetime.today().strftime('%Y-%m-%d')
