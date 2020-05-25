@@ -12,7 +12,6 @@ def DashboardView(request):
     unpaidcus = customer.filter(payment_status='unpaid')
     paid = customer.filter(payment_status='paid').count()
     unpaid = customer.filter(payment_status='unpaid').count()
-
     for c in customer:
         total_share+=c.payment_amount
     for c in paidcus:

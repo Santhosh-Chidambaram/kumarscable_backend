@@ -13,3 +13,8 @@ class CollectedCustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model =CollectedCustomer
         fields = ('__all__')
+    
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['collector'] = SetupBoxSerializer(instance.setupbox).data.get('boxno')
+        return response

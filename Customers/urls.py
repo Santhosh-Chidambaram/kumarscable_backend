@@ -12,4 +12,6 @@ urlpatterns = [
     path('api/customers/<int:pk>',CustomerDetail,name='api-customerdetail'),
     path('api/customer/payment/update/<int:pk>',CustomerPaymentUpdate,name='api-cspaymentupdate'),
     path('api/setalltounpaid',setAllCustomersToUnpaid,name='setalltounpaid'),
+    path('api/shareamount/',ShareAmountView,name="shareamount"),
+    path('api/listcustomers',ListCustomers.as_view(),name="cus-list")
 ]

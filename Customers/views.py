@@ -11,7 +11,10 @@ from django.contrib.auth.models import User
 import json
 import datetime
 from django.shortcuts import get_object_or_404,get_list_or_404
-
+from Setupboxes.models import SetupBox
+from  Collections.models import Collection
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination,LimitOffsetPagination
 
 #Customer API Views
 
@@ -40,7 +43,7 @@ def CustomerPaymentUpdate(request, pk):
 
 
 class GetCustomer(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     def  get(self,request,boxno):
         q_box = Customer.objects.filter(setupbox__boxno=boxno)
         if q_box:
@@ -105,16 +108,18 @@ def CustomerDetail(request, pk):
         cs.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class CustomerList(APIView):
-    permission_classes = (IsAuthenticated,)
+class CustomerList(ListAPIView):
+    #permission_classes = (IsAuthenticatedOrReadOnly,)
+
     def get(self,request):
         cus = Customer.objects.all()
-        tab = request.GET.get('tab')
+        pagination_class = PageNumberPagination
+        status = request.GET.get('status')
 
-        if tab :
-            cd = cus.filter(payment_status=tab)
+        if status :
+            cd = cus.filter(payment_status=status)
 
-            return Response({
+            res = [{
                 "count":cd.count(),
                 "id":c.id,
                 "name":c.name,
@@ -125,12 +130,13 @@ class CustomerList(APIView):
                 "payment_status":c.payment_status,
 
 
-                }for c in cd
-            )
+                }for c in cd]
+            response_list = res
+            return Response(data=response_list)
 
         else:
-    
-            return Response({
+            
+            res = [{
                 "id":c.id,
                 "name":c.name,
                 "street":c.street,
@@ -138,7 +144,9 @@ class CustomerList(APIView):
                 "setupbox":c.setupbox.boxno,
                 "payment_amount":c.payment_amount,
                 "payment_status":c.payment_status,
-            }for c in cus)
+            }for c in cus]
+            response_list = res
+            return Response(data=response_list)
 
 
     def post(self,request):
@@ -156,6 +164,62 @@ def customersCount(request):
     })
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def setAllCustomersToUnpaid(request):
     Customer.objects.all().update(payment_status='unpaid')
     return Response({"All Customers Payment Status Changed to Unpaid"},status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def ShareAmountView(request):
+    setupbox = SetupBox.objects.all()
+    active = setupbox.filter(box_status='active').count()
+    unactive = setupbox.filter(box_status='deactive').count()
+    customer = Customer.objects.all()
+    total_share = collected_amount = due_amount = 0
+    paidcus = customer.filter(payment_status='paid')
+    unpaidcus = customer.filter(payment_status='unpaid')
+    paid = customer.filter(payment_status='paid').count()
+    unpaid = customer.filter(payment_status='unpaid').count()
+    for c in customer:
+        total_share+=c.payment_amount
+    for c in paidcus:
+        collected_amount+=c.payment_amount
+    for c in unpaidcus:
+        due_amount+=c.payment_amount
+    
+    #Collections
+    date = datetime.datetime.today().strftime('%Y-%m-%d')
+    try:
+        coll = Collection.objects.filter(date=date)
+    except TypeError:
+        return Response({"Object not found"},status=status.HTTP_404_NOT_FOUND)
+    total_collection = 0
+    total_customer = []
+    for c in coll:
+        tc={}
+        total_collection+=c.collection_amount
+        for cc in c.collection_list.all():
+            tc={"customer_name":cc.name,"paid_amount":cc.payment_amount,"payment_status":cc.payment_status}
+            total_customer.append(tc)
+
+    
+    return Response({
+
+        "paidcount":paid,
+        "unpaidcount":unpaid,
+        "total_share":total_share,
+        "due_amount":due_amount,
+        "collected_amount":collected_amount,
+        "stbactive":active,
+        "stbdeactive":unactive,
+        "amount":total_collection,
+        "customers":len(total_customer),
+        "total":customer.count()
+
+    })
+   
+
+class ListCustomers(ListAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    pagination_class = LimitOffsetPagination
