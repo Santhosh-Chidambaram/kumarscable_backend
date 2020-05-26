@@ -14,6 +14,6 @@ class CollectedCustomerSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['customer'] = CustomerSerializer(instance.setupbox).data.get('name')
+        response['customer'] = CustomerSerializer(instance.customer).data.get('name')
         return response
     
