@@ -108,7 +108,7 @@ def CustomerDetail(request, pk):
         cs.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class CustomerList(ListAPIView):
+class CustomerList(APIView):
     #permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self,request):
