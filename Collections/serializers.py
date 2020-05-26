@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework import permissions
 from .models import Collection,CollectedCustomer
-
+from Setupboxes.serializers import SetupBoxSerializer
 
 
 class CollectionSerialzer(serializers.ModelSerializer):
