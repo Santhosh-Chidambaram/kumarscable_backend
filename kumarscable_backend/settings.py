@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import dj_database_url
+import django_heroku
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +26,7 @@ SECRET_KEY = 'soin)1c6l&9vs!ep(*s2=qrq*4pc()392ij$su5ok-gjp1vt20$h'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1','testkcapp.herokuapp.com','192.168.43.246','kumarscable.herokuapp.com']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -98,8 +99,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'kumarscable_backend.wsgi.application'
-
-
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
@@ -155,3 +156,5 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR,'kumarscable_backend/static')
 MEDIA_ROOT = os.path.join(BASE_DIR,'media/')
 MEDIA_URL = '/media/'
 CORS_ORIGIN_ALLOW_ALL = True
+
+django_heroku.settings(locals())
