@@ -1,16 +1,16 @@
 from django.contrib import admin
-from .models import Customer,CustomerReport
+from .models import Customer,CustomerReport,Packages,Channels
 from import_export.admin import ImportExportModelAdmin
 from django.urls import path
 from django.http import HttpResponseRedirect
-from Setupboxes.models import SetupBox
 
 
 @admin.register(Customer)
 class CustomerAdminAll(ImportExportModelAdmin):
     change_list_template = "entities/status_changelist.html"
-    list_display = ('id','name','setupbox','street','payment_amount','payment_status','payment_made')
-    list_filter = ['payment_status','street']
+    list_display = ('id','name','street','payment_amount','payment_status','payment_made')
+    list_filter = ['payment_status','street',]
+    search_fields=('name','id','street','payment_amount')
     ordering = ['id']
     date_hierarchy = 'payment_date'
     list_per_page = 250
@@ -40,6 +40,20 @@ class CsReportAdminAll(ImportExportModelAdmin):
     date_hierarchy = 'payment_date'
     list_per_page = 250
     readonly_fields = ['payment_month']
-  
+
+
+@admin.register(Packages)
+class PackagesAdmin(ImportExportModelAdmin):
+    list_display = ('name','price','channels_count',)
+    ordering = ['id']
+    list_filter = ['price']
+    search_fields= ['name']
+
+@admin.register(Channels)
+class ChannelsAdmin(ImportExportModelAdmin):
+    list_display = ('name','price',)
+    ordering = ['id']
+    list_filter = ['price']
+    search_fields= ['name']
 
 

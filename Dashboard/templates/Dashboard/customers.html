@@ -1,0 +1,120 @@
+{% extends "Dashboard/base.html" %}{% load static %}
+
+
+{% block sb_admin_title %}
+{{status}}
+
+{% endblock sb_admin_title %} {% block sb_admin_subheading %}
+<small>Statistics Overview</small>
+{% endblock sb_admin_subheading %} 
+{% block sb_admin_breadcrumb_active %}
+<li class="breadcrumb-item active">
+  <i class="fa fa-bar-chart-o"></i> Customers
+</li>
+{% if status == 'paid' %}
+    <li class="breadcrumb-item active">
+        <i class="fa fa-bar-chart-o"></i> Paid
+    </li>
+{% else %}
+  <li class="breadcrumb-item active">
+    <i class="fa fa-bar-chart-o"></i> Unpaid
+  </li>
+{% endif %}
+{% endblock sb_admin_breadcrumb_active %} 
+
+{% block sb_admin_content %}
+
+<!-- DataTables Example -->
+<div class="card mb-3">
+    <div class="card-header">
+      <i class="fas fa-table"></i>
+      Customers
+    </div>
+    <div class="card-body">
+      <div style="display: flex; justify-content: space-evenly;">
+        {% if status == 'paid' %}
+            <div 
+            style="background-color: #0072ff; 
+            color: #fafafa;
+            width:150px;
+            height: 40px;
+            border-radius: 50px;
+            text-align: center;padding: 8px;
+            font-weight: bold;">
+            PAID : {{count}}
+            </div>
+        {% else %}
+            <div style="background-color: #fd1d1d; color: #fafafa;
+            width:150px;
+            height: 40px;
+            border-radius: 50px;
+            text-align: center;padding: 8px;
+            font-weight: bold;">
+            UNPAID : {{count}}
+            </div>
+        {% endif %}
+      </div>
+      <div class="table-responsive">
+        <table
+          class="table table-bordered"
+          id="example"
+          width="100%"
+          cellspacing="0"
+        >
+          <thead style="background-color: #43cea2; color: #fafafa;">
+            <tr>
+              <th>CUSTOMER ID</th>
+              <th>NAME</th>
+              <th>STB NUMBER</th>
+              <th>STREET</th>
+              <th>PHONE</th>
+  
+              <th>PAYMENT AMOUNT</th>
+              <th>LAST PAYMENT DATE</th>
+              <th>PAYMENT STATUS</th>
+            </tr>
+          </thead>
+          <tfoot style="background-color: #43cea2; color: #fafafa;">
+            <tr>
+              <th>CUSTOMER ID</th>
+              <th>NAME</th>
+              <th>STB NUMBER</th>
+              <th>STREET</th>
+              <th>PHONE</th>
+  
+              <th>PAYMENT AMOUNT</th>
+              <th>LAST PAYMENT DATE</th>
+              <th>PAYMENT STATUS</th>
+            </tr>
+          </tfoot>
+          <tbody>
+            {% for cus in customers %}
+            <tr>
+              <td>{{ cus.id }}</td>
+              <td>{{cus.name}}</td>
+              <td>{{cus.setupbox.boxno}}</td>
+              <td>{{cus.street}}</td>
+              <td>{{cus.phone}}</td>
+  
+              <td>{{cus.payment_amount}}</td>
+              <td>{{cus.payment_date}}</td>
+              {% if cus.payment_status == 'paid' %}
+  
+              <td style="color: #0f9b0f; font-weight: bold;">PAID</td>
+  
+              {% else %}
+  
+              <td style="color: #fd1d1d; font-weight: bold;">UNPAID</td>
+  
+              {% endif %}
+            </tr>
+  
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  {% endblock sb_admin_content %}
+  

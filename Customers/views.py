@@ -2,21 +2,41 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from rest_framework import status
-from .models import Customer,CustomerReport
+from .models import Customer,CustomerReport,Packages,Channels
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.mixins import ListModelMixin
-from .serializers import CustomerReportSerializer,CustomerSerializer
+from .serializers import CustomerReportSerializer,CustomerSerializer,PackageSerializer,ChannelSerializer,CustomerPaymentSerializer
+from Collections.serializers import CollectedCustomerSerializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from django.contrib.auth.models import User
 import json
 import datetime
 from django.shortcuts import get_object_or_404,get_list_or_404
-from Setupboxes.models import SetupBox
+from django.http import Http404
+from django.db import IntegrityError
 from  Collections.models import Collection
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination,LimitOffsetPagination
 
 #Customer API Views
+class getUserId(APIView):
+    showPhone = False
+    
+    def get(self,request):
+        userid =User.objects.get(pk=request.user.pk)
+        return Response({
+            "userid":userid.pk,
+            "showPhoneField":self.showPhone,
+        })
+    def post(self,request):
+        userid =User.objects.get(pk=request.user.pk)
+        shw = request.POST.get('showPhoneField')
+        self.showPhone = shw
+        return Response({
+            "userid":userid.pk,
+            "showPhoneField":self.showPhone,
+        })
+
 
 @permission_classes([IsAuthenticated,])
 @api_view(['GET', 'PUT'])
@@ -28,58 +48,69 @@ def CustomerPaymentUpdate(request, pk):
     except Customer.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        serializer = CustomerSerializer(cs)
-        return Response(serializer.data)
+        cr = CustomerReport.objects.filter(customer=pk)
+        return Response({
+           "reports":[
+               {
+                   "id":c.id,
+                   "customer_name":c.customer_name,
+                   "payment_date":c.payment_date,
+                   "payment_amount":c.customer.payment_amount,
+               }
+               for c in cr
+           ]
+           
+        }
+        
+        )
+
+
     elif request.method == 'PUT':
-        serializer = CustomerSerializer(cs, data=request.data)
-        crserializer = CustomerReportSerializer(data=request.data)
-        if serializer.is_valid() and crserializer.is_valid() :
-            serializer.save()
-            crserializer.save()
-            return Response(serializer.data)
-        return Response(crserializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        cus_id = request.data.get('customer')
+        stb = request.data.get('stb')
+        try:
+            cus = get_object_or_404(Customer,id=cus_id)
+            serializer = CustomerPaymentSerializer(cs, data=request.data)
+            crserializer = CustomerReportSerializer(data=request.data)
+            collection_serializer = CollectedCustomerSerializer(data=request.data)
+            if cus.stbno == stb:
+                try:
+                    if serializer.is_valid()  and crserializer.is_valid() and collection_serializer.is_valid():
+                        serializer.save()
+                        crserializer.save()
+                        collection_serializer.save()
+                        return Response(collection_serializer.data)
+                    elif serializer.errors:
+                        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+                    elif crserializer.errors:
+                        return Response(crserializer.errors,status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response(collection_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+                except IntegrityError as e:
+
+                    return Response({"Customer has already paid"}, status=status.HTTP_403_FORBIDDEN)
+                
+            return Response({"Invalid Customer Id or Boxnumber"}, status=status.HTTP_404_NOT_FOUND)
+        except Http404:
+           return Response({"Invalid Customer Id or Boxnumber"}, status=status.HTTP_404_NOT_FOUND)
+        
+        
+
     else:
         pass
+        
 
 
 class GetCustomer(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     def  get(self,request,boxno):
-        q_box = Customer.objects.filter(setupbox__boxno=boxno)
+        q_box = Customer.objects.filter(stbno=boxno)
         if q_box:
-            return Response({
-                    "id":s.id,
-                    "name":s.name,
-                    "street":s.street,
-                    "phone":s.phone,
-                    "payment_status":s.payment_status,
-                    "setupbox":
-                        {
-                        
-                        "boxno":s.setupbox.boxno,
-                        "base_package":s.setupbox.base_package,
-                        "bouquets":[{
-                            "id":p.id,"name":p.name }for p in s.setupbox.bouquets.all()
-                            ]
-                        ,
-                        "bcbouquets":[{
-                            "id":p.id,"name":p.name }for p in s.setupbox.broadcast_bouquets.all()
-                            ],
-                        "addon_packages":[{
-                            "id":p.id,"name":p.name }for p in s.setupbox.addon_packages.all()
-                            ],
-                        "start_date":s.setupbox.start_date,
-                        "end_date":s.setupbox.end_date,
-                        "base_price":s.setupbox.base_price,
-                        "add_price":s.setupbox.additional_price,
-                        "gst":s.setupbox.gst_price,
-                        "total_price":s.setupbox.total_price
-                        },
-                    "payment_amount":s.payment_amount
-
-                    } for s in q_box)
+            serializer = CustomerSerializer(q_box,many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         else:
-            return Response({"Customer not found"},status=status.HTTP_404_NOT_FOUND)
+            return Response({"error":"Customer not found"},status=status.HTTP_404_NOT_FOUND)
 
             
 
@@ -110,76 +141,54 @@ def CustomerDetail(request, pk):
 
 class CustomerList(APIView):
     #permission_classes = (IsAuthenticatedOrReadOnly,)
-
     def get(self,request):
-        cus = Customer.objects.all()
-        pagination_class = PageNumberPagination
-        status = request.GET.get('status')
-
-        if status :
-            cd = cus.filter(payment_status=status)
-
-            res = [{
-                "count":cd.count(),
-                "id":c.id,
-                "name":c.name,
-                "street":c.street,
-                "phone":c.phone,
-                "setupbox":c.setupbox.boxno,
-                "payment_amount":c.payment_amount,
-                "payment_status":c.payment_status,
-
-
-                }for c in cd]
-            response_list = res
-            return Response(data=response_list)
-
-        else:
-            
-            res = [{
-                "id":c.id,
-                "name":c.name,
-                "street":c.street,
-                'phone':c.phone,
-                "setupbox":c.setupbox.boxno,
-                "payment_amount":c.payment_amount,
-                "payment_status":c.payment_status,
-            }for c in cus]
-            response_list = res
-            return Response(data=response_list)
-
+       customer = Customer.objects.all()
+       serializer = CustomerSerializer(customer,many=True)
+       return Response(serializer.data)
 
     def post(self,request):
-        serializer = CustomerSerializer(data=request.data)  
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        serializer = CustomerSerializer(data=request.data)
+        
+        try:
+
+            if serializer.is_valid():
+                serializer.save()
+                data1 = {
+                    "customer":serializer.data.get('id'),
+                    "payment_date":serializer.data.get('payment_date'),
+                }
+                crserializer = CustomerReportSerializer(data=data1)
+                if crserializer.is_valid():
+                    crserializer.save()
+                    return Response(serializer.data,status=status.HTTP_201_CREATED)
+                return Response(crserializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+           return Response("STB Already exits",status=status.HTTP_403_FORBIDDEN) 
+        
+            
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["GET"])
-@permission_classes((IsAuthenticated,))
-def customersCount(request):
-    return Response({
-       "customers_count":Customer.objects.all().count()
-    })
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def setAllCustomersToUnpaid(request):
     Customer.objects.all().update(payment_status='unpaid')
-    return Response({"All Customers Payment Status Changed to Unpaid"},status=status.HTTP_200_OK)
+    return Response({"All Customers Payment Status Changed to Unpaid"},f)
+
+
 
 @api_view(['GET'])
 def ShareAmountView(request):
-    setupbox = SetupBox.objects.all()
-    active = setupbox.filter(box_status='active').count()
-    unactive = setupbox.filter(box_status='deactive').count()
+
     customer = Customer.objects.all()
     total_share = collected_amount = due_amount = 0
     paidcus = customer.filter(payment_status='paid')
     unpaidcus = customer.filter(payment_status='unpaid')
     paid = customer.filter(payment_status='paid').count()
     unpaid = customer.filter(payment_status='unpaid').count()
+    active = customer.filter(box_status='active').count()
+    deactive = customer.filter(box_status='deactive').count()
     for c in customer:
         total_share+=c.payment_amount
     for c in paidcus:
@@ -188,9 +197,9 @@ def ShareAmountView(request):
         due_amount+=c.payment_amount
     
     #Collections
-    date = datetime.datetime.today().strftime('%Y-%m-%d')
+    date = datetime.datetime.today().strftime("%Y-%m-%d")
     try:
-        coll = Collection.objects.filter(date=date)
+        coll = Collection.objects.filter(date__startswith=date)
     except TypeError:
         return Response({"Object not found"},status=status.HTTP_404_NOT_FOUND)
     total_collection = 0
@@ -207,11 +216,11 @@ def ShareAmountView(request):
 
         "paidcount":paid,
         "unpaidcount":unpaid,
+        "active":active,
+        "deactive":deactive,
         "total_share":total_share,
         "due_amount":due_amount,
         "collected_amount":collected_amount,
-        "stbactive":active,
-        "stbdeactive":unactive,
         "amount":total_collection,
         "customers":len(total_customer),
         "total":customer.count()
@@ -223,3 +232,15 @@ class ListCustomers(ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     pagination_class = LimitOffsetPagination
+
+@api_view(['GET'])
+def PackagesListView(request):
+    pack = Packages.objects.all()
+    serialzier = PackageSerializer(pack,many=True)
+    return Response(serialzier.data)
+
+@api_view(['GET'])
+def ChannelsListView(request):
+    channel = Channels.objects.all()
+    serialzier = ChannelSerializer(channel,many=True)
+    return Response(serialzier.data)

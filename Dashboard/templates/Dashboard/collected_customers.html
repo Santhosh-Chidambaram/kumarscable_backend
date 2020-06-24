@@ -1,4 +1,4 @@
-{% extends "Dashboard/base.html" %}{% load static %}{% block sb_admin_title %}Tables{% endblock sb_admin_title %}{% block sb_admin_subheading %}{% endblock sb_admin_subheading %}
+{% extends "Dashboard/base.html" %}{% load static %}{% block sb_admin_title %}Todays Collected Customers{% endblock sb_admin_title %}{% block sb_admin_subheading %}{% endblock sb_admin_subheading %}
 
 
 
@@ -9,12 +9,23 @@
   <!-- DataTables Example -->
   <div class="row"  style="justify-content: center;align-items: center;padding-top: 20px;">
     <div class="col-xl-3 col-sm-6 mb-3">
-        <div class="card text-white o-hidden h-100 " style="background-color: rgb(212, 28, 68);">
+        <div class="card text-white o-hidden h-100 " style="background-color: rgba(0, 132, 255, 0.856);">
+          <div class="card-body">
+            <div class="card-body-icon">
+              <i class="fas fa-fw fa-users"></i>
+            </div>
+            <div class="mr-5" style="font-weight: bolder;font-size: large;">TOTAL COLLECTED CUSTOMERS : {{total_count}}</div>
+          </div>
+          
+        </div>
+      </div>
+      <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card text-white o-hidden h-100 " style="background-color: rgb(37, 207, 199);">
           <div class="card-body">
             <div class="card-body-icon">
               <i class="fas fa-fw fa-money-bill-alt"></i>
             </div>
-            <div class="mr-5" style="font-weight: bolder;">TOTAL COLLECTION : {{total_collection}}</div>
+            <div class="mr-5" style="font-weight: bolder;font-size: large;">TOTAL COLLECTION : Rs.{{total_collection}}</div>
           </div>
           
         </div>
@@ -28,7 +39,7 @@
             
             <div class="table-responsive">
                 
-              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <table class="table table-bordered" id="example" width="100%" cellspacing="0">
                 <thead style="background-color: #43cea2;color: #fafafa;">
                   <tr>
                     <th>COLLECTOR NAME</th>
@@ -49,7 +60,7 @@
                 <tbody>
                     {% for c in collected_customers %}
                     <tr>
-                        <td>{{c.collector.username}}</td>
+                        <td>{{c.collection_agent.username}}</td>
                         <td>{{c.customer.name}}</td>
                         <td>{{c.customer.setupbox.boxno}}</td>
                         <td>{{c.street}}</td>

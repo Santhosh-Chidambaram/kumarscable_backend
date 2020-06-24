@@ -11,11 +11,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import dj_database_url
-import django_heroku
+#import dj_database_url
+#import django_heroku
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -37,10 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Home',
     'Collections',
     'Dashboard',
-    'Setupboxes',
     'Customers',
     'rest_framework',
     'rest_framework.authtoken',
@@ -78,7 +75,7 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
     ],
  
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 1
 }
 
 
@@ -99,18 +96,29 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'kumarscable_backend.wsgi.application'
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = False
+#SESSION_COOKIE_SECURE = True
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'kumarscable',
+#         'USER':'kumarscable',
+#         'PASSWORD':'santhosh2902',
+#         'HOST':'kumarscable-aws.cyjhrhpcc3di.us-east-2.rds.amazonaws.com',
+#         'PORT':'5432',
+#     }
+# }
+
 DATABASES = {
+    
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'db.sqlite3',
     }
 }
-
 
 
 # Password validation
@@ -143,7 +151,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -151,10 +159,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [os.path.join(BASE_DIR,'kumarscable_backend/static')
-]
+# STATICFILES_DIRS = [os.path.join(BASE_DIR,'static'),
+# ]
 MEDIA_ROOT = os.path.join(BASE_DIR,'media/')
 MEDIA_URL = '/media/'
 CORS_ORIGIN_ALLOW_ALL = True
-
-django_heroku.settings(locals())

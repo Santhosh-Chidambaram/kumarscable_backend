@@ -1,4 +1,4 @@
-{% extends "Dashboard/base.html" %}{% load static %}{% block sb_admin_title %}Tables{% endblock sb_admin_title %}{% block sb_admin_subheading %}{% endblock sb_admin_subheading %}
+{% extends "Dashboard/base.html" %}{% load static %}{% block sb_admin_title %}Collections{% endblock sb_admin_title %}{% block sb_admin_subheading %}{% endblock sb_admin_subheading %}
 
 
 
@@ -6,15 +6,29 @@
  <li class="breadcrumb-item active">Collections</li>
  {% endblock sb_admin_breadcrumb_active %}
  {% block sb_admin_content %}  
+ <div class="row"  style="justify-content: center;align-items: center;padding-top: 20px;">
+  
+    <div class="col-xl-3 col-sm-6 mb-3">
+      <div class="card text-white o-hidden h-100 " style="background-color: rgb(245, 81, 109);">
+        <div class="card-body">
+          <div class="card-body-icon">
+            <i class="fas fa-fw fa-money-bill-alt"></i>
+          </div>
+          <div class="mr-5" style="font-weight: bolder;font-size: large;">OVERALL COLLECTION : Rs.{{overall_collection}}</div>
+        </div>
+        
+      </div>
+    </div>
+</div>
   <!-- DataTables Example -->
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-table"></i>
-           SetupBoxes</div>
+           Collections</div>
           <div class="card-body">
             
             <div class="table-responsive">
-              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <table class="table table-bordered" id="example" width="100%" cellspacing="0">
                 <thead style="background-color: #43cea2;color: #fafafa;">
                   <tr>
                     <th>COLLECTOR NAME</th>
@@ -32,13 +46,16 @@
                 <tbody>
                     {% for c in collection %}
                     <tr>
-                        <td>{{c.collector.username}}</td>
+                        <td>{{c.collection_agent.username}}</td>
                         <td>{{c.date}}</td>
                         <td>{{c.collection_amount}}</td>
                         <td>
-                          {% for cl in c.collection_list.all %}
-                              {{ cl.name }},
-                          {% endfor %}
+                          <!-- {% for cl in c.collection_list.all %}
+
+                              
+                              
+                          {% endfor %} -->
+                          <a href="{% url 'kc_collectioncuslist' c.id %}" ><i class="fas fa-fw fa-file"></i>  View List</a>
                         </td>
                         
                       </tr>
@@ -56,4 +73,6 @@
 
 {% endblock sb_admin_content %}
 
+{% block sb_admin_custom_js %}
 
+{% endblock sb_admin_custom_js %}
