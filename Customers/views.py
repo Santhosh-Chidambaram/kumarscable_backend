@@ -5,7 +5,7 @@ from rest_framework import status
 from .models import Customer,CustomerReport,Packages,Channels
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.mixins import ListModelMixin
-from .serializers import CustomerReportSerializer,CustomerSerializer,PackageSerializer,ChannelSerializer,CustomerPaymentSerializer
+from .serializers import CustomerReportSerializer,CustomerSerializer,PackageSerializer,ChannelSerializer,CustomerPaymentSerializer,CustomerRegistration
 from Collections.serializers import CollectedCustomerSerializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from django.contrib.auth.models import User
@@ -17,7 +17,11 @@ from django.db import IntegrityError
 from  Collections.models import Collection
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination,LimitOffsetPagination
-
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from rest_framework.authtoken.models import Token
+client = razorpay.Client(auth=("rzp_test_nipc8N0m9QfOub","iySTJK7BdlyIG4kybPZpesGb"))
 #Customer API Views
 class getUserId(APIView):
     showPhone = False
@@ -244,3 +248,38 @@ def ChannelsListView(request):
     channel = Channels.objects.all()
     serialzier = ChannelSerializer(channel,many=True)
     return Response(serialzier.data)
+
+class CheckoutView(APIView):
+   
+
+    def get(self,request):
+        pass
+    
+    def post(self,request):
+        order_amount = request.POST.get('order_amount')
+        order_currency = 'INR'
+        order_receipt = 'kc_rcpt_11'
+        result = client.order.create(dict(amount=order_amount,currency=order_currency,receipt=order_receipt,payment_capture='0'))
+        notes = {
+
+        }
+        order_id = result['id']
+        order_status = result['status']
+        if order_status =='created':
+            return Response({
+                "order_id":order_id,
+            })
+        return Response({"No data"})
+
+
+@csrf_exempt
+@api_view(['POST'])
+def CustomerRegisterView(request):
+        serializer = CustomerRegistration(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            token = Token.objects.get(user=User.objects.get(username=serializer.data['username']))
+            print(token)
+            return Response({'token':str(token)},status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

@@ -96,6 +96,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'kumarscable_backend.wsgi.application'
+
 #CSRF_COOKIE_SECURE = False
 #SESSION_COOKIE_SECURE = True
 # Database
@@ -138,6 +139,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+PAYMENT_VARIANTS = {
+    'razorpay': ('django_payments_razorpay.RazorPayProvider', {
+        'public_key': 'rzp_test_nipc8N0m9QfOub',
+        'secret_key': 'iySTJK7BdlyIG4kybPZpesGb'})}
 
 
 # Internationalization

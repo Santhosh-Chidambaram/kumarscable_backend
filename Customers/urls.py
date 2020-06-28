@@ -8,8 +8,10 @@ from rest_framework.authtoken.views import obtain_auth_token
 urlpatterns = [
     path('api/getuserid',getUserId.as_view(),name="getuserid"),
     path('api-token-auth/',obtain_auth_token,name='api_token_auth'),
+    path('api/checkout',CheckoutView.as_view(),name="checkout"),
+    path('api/customer/register',CustomerRegisterView,name="customerregister"),
 
-    
+
     path('api/customers',CustomerList.as_view(),name='api-customers'),
     path('api/packages',PackagesListView,name='api-packages'),
     path('api/channels',ChannelsListView,name='api-channels'),

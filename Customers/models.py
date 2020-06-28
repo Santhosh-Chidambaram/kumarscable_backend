@@ -41,7 +41,8 @@ class Customer(models.Model):
         ('normal', 'NORMAL'),
         ('internet', 'INTERNET')
     ]
-    lco_admin = models.ForeignKey(User,on_delete=models.CASCADE,null=True,default=1)
+
+    user = models.OneToOneField(User,on_delete=models.CASCADE,blank=True,null=True)
 
     name = models.CharField(max_length=50)
     street = models.CharField(max_length=50)
@@ -49,7 +50,7 @@ class Customer(models.Model):
     customer_type = models.CharField(choices=CUSTOMER_TYPE,max_length=10,default='normal')
     due_amount = models.FloatField(default=0,null=True)
     due_months = models.CharField(max_length=2,null=True,blank=True)
-
+    tamil_name=models.CharField(max_length=50,blank=True,null=True)
     
     payment_status = models.CharField(choices=[('paid','PAID'),('unpaid','UNPAID')],max_length=6,default='unpaid')
     payment_date = models.DateTimeField(auto_now_add=False,null=True,blank=True)
@@ -88,6 +89,7 @@ class CustomerReport(models.Model):
     customer_name = models.CharField(max_length=50,blank=True)
     payment_date = models.DateTimeField(auto_now_add=True)
     payment_month = MonthField(auto_now_add=True)
+    
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['customer', 'payment_month'], name='um')
@@ -99,6 +101,13 @@ class CustomerReport(models.Model):
     def save(self,*args,**kwargs):
         self.customer_name = self.customer.name
         super(CustomerReport,self).save(*args, **kwargs)
+
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
 
 # @receiver(post_init,sender = Customer)
 # def pre_total_cal(sender,instance,*args,**kwargs):
