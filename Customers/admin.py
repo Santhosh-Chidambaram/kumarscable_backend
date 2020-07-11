@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Customer,CustomerReport,Packages,Channels
+from .models import Customer,CustomerReport,Packages,Channels,OnlineTransaction,PackageRequest,UserComplaint
 from import_export.admin import ImportExportModelAdmin
 from django.urls import path
 from django.http import HttpResponseRedirect
@@ -33,9 +33,9 @@ class CustomerAdminAll(ImportExportModelAdmin):
 
 @admin.register(CustomerReport)
 class CsReportAdminAll(ImportExportModelAdmin):
-    list_display = ('id','customer_name', 'payment_month','payment_date')
+    list_display = ('id','customer_name', 'payment_mode', 'payment_amount', 'payment_month','payment_date')
     ordering = ['id']
-    list_filter = ('payment_month','payment_date')
+    list_filter = ('payment_month','payment_date','payment_mode')
     search_fields= ['customer_name']
     date_hierarchy = 'payment_date'
     list_per_page = 250
@@ -56,4 +56,6 @@ class ChannelsAdmin(ImportExportModelAdmin):
     list_filter = ['price']
     search_fields= ['name']
 
-
+admin.site.register(OnlineTransaction)
+admin.site.register(PackageRequest)
+admin.site.register(UserComplaint)

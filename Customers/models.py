@@ -42,7 +42,7 @@ class Customer(models.Model):
         ('internet', 'INTERNET')
     ]
 
-    user = models.OneToOneField(User,on_delete=models.CASCADE,blank=True,null=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
 
     name = models.CharField(max_length=50)
     street = models.CharField(max_length=50)
@@ -87,6 +87,8 @@ class Customer(models.Model):
 class CustomerReport(models.Model):
     customer = models.ForeignKey(Customer,on_delete=models.CASCADE)
     customer_name = models.CharField(max_length=50,blank=True)
+    payment_amount = models.CharField(max_length=4,blank=True,null=True)
+    payment_mode =  models.CharField(choices=[('online','ONLINE'),('offline','OFFLINE')],max_length=7,default='offline')
     payment_date = models.DateTimeField(auto_now_add=True)
     payment_month = MonthField(auto_now_add=True)
     
@@ -100,8 +102,41 @@ class CustomerReport(models.Model):
 
     def save(self,*args,**kwargs):
         self.customer_name = self.customer.name
+        self.payment_amount = self.customer.payment_amount
         super(CustomerReport,self).save(*args, **kwargs)
 
+
+class PackageRequest(models.Model):
+    customer = models.ForeignKey(User,on_delete=models.CASCADE)
+    stbno = models.CharField(max_length=8)
+    date = models.DateTimeField(auto_now_add=True)
+    packages = models.ManyToManyField(Packages,blank=True)
+    channels = models.ManyToManyField(Channels,blank=True)
+    payment_mode =  models.CharField(choices=[('online','ONLINE'),('offline','OFFLINE')],max_length=7,default='offline')
+    payment_status = models.CharField(choices=[('successfull','SUCCESSFUL'),('pending','PENDING'),('failed','FAILED')],max_length=11,default='pending')
+    request_status = models.CharField(choices=[('successfull','SUCCESSFUL'),('pending','PENDING')],max_length=11,default='pending')
+    def __str__(self):
+        return f"{self.customer}"
+
+class OnlineTransaction(models.Model):
+    doneby = models.ForeignKey(Customer,on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    transaction_id = models.CharField(max_length=30)
+    transaction_amount = models.CharField(max_length=4)
+    transaction_status = models.CharField(choices=[('successfull','SUCCESSFUL'),('pending','PENDING'),('failed','FAILED')],max_length=11)
+
+
+class UserComplaint(models.Model):
+    customer = models.ForeignKey(User,on_delete=models.CASCADE)
+    complaint_type = models.CharField(choices=[('service','SERVICE'),('query','QUERY')],max_length=7,default='service')
+    complaint = models.CharField(max_length=50)
+    remarks = models.CharField(max_length=50)
+    status = models.CharField(choices=[('raised','RAISED'),('resolved','RESOLVED')],max_length=8,default='raised')
+    date = models.DateTimeField(auto_now_add=True)
+    resolved_date = models.DateField(auto_now=False,blank=True,null=True)
+    def __str__(self):
+        
+        return f"{self.customer}"
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

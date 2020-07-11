@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework import permissions
-from .models import CustomerReport,Customer,Packages,Channels
+from .models import CustomerReport,Customer,Packages,Channels,PackageRequest,UserComplaint,OnlineTransaction
 from django.contrib.auth.models import User
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -65,3 +65,20 @@ class CustomerRegistration(serializers.ModelSerializer):
 
         return user
 
+class PackageRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PackageRequest
+        fields = ('__all__')
+    
+class UserComplaintSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserComplaint
+        fields = ('__all__')
+
+class OnlineTransactionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OnlineTransaction
+        fields = ('__all__')

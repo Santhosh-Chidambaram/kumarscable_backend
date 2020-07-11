@@ -7,9 +7,14 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     path('api/getuserid',getUserId.as_view(),name="getuserid"),
-    path('api-token-auth/',obtain_auth_token,name='api_token_auth'),
-    path('api/checkout',CheckoutView.as_view(),name="checkout"),
+    path('api-token-auth/',CustomAuthToken.as_view(),name='api_token_auth'),
+    path('api/checkout/<int:pk>',CheckoutView,name="checkout"),
     path('api/customer/register',CustomerRegisterView,name="customerregister"),
+    path('api/customerdata/<int:pk>',CustomerDataView),
+    path('api/customer/packagerequest',PackageRequestView),
+    path('api/customer/packagerequest/<int:id>',GetPackageRequestView),
+    path('api/customer/addstb/<str:boxno>',addSTBView),
+    path('api/customer/complaint',RegisterCompaint.as_view()),
 
 
     path('api/customers',CustomerList.as_view(),name='api-customers'),

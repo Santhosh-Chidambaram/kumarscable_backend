@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'soin)1c6l&9vs!ep(*s2=qrq*4pc()392ij$su5ok-gjp1vt20$h'
+SECRET_KEY = 'soin)1c6l&rtertyrew45#@)!dsaasdok-gjp1vt20$h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -97,21 +97,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'kumarscable_backend.wsgi.application'
 
-#CSRF_COOKIE_SECURE = False
-#SESSION_COOKIE_SECURE = True
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'kumarscable',
-#         'USER':'kumarscable',
-#         'PASSWORD':'santhosh2902',
-#         'HOST':'kumarscable-aws.cyjhrhpcc3di.us-east-2.rds.amazonaws.com',
-#         'PORT':'5432',
-#     }
-# }
 
 DATABASES = {
     
