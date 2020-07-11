@@ -28,7 +28,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-client = razorpay.Client(auth=("rzp_test_nipc8N0m9QfOub","iySTJK7BdlyIG4kybPZpesGb"))
+client = razorpay.Client(auth=("#key","#secret"))
 
 
 #Customer Authentication Views
